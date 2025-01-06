@@ -27,6 +27,10 @@
         let y = (alfa * x) / (1 + x * (alfa - 1));
         return y;
     }
+    let curvaDeEquilibrioInv = function (y, alfa) {
+        let x = -y / (y * (alfa - 1) - alfa);
+        return x;
+    }
     let formulaCuadratica = function (a, b, c) { //No hace falta describir a la fórmula cuadrática xd
         if (typeof a !== 'number' || typeof b !== 'number' || typeof c !== 'number')
             throw new Error("Los coeficientes a, b y c deben ser números.");
@@ -66,6 +70,10 @@
     let xPrimayPrima = function (q, xF, alfa) {//xPrimayPrima = intersección de la línea de alimentación con la curva de equilibrio
         if (typeof q !== 'number' || typeof xF !== 'number' || typeof alfa !== 'number')
             throw new Error("q, xF y alfa deben ser números.");
+        if (q == 1)//caso especial, si q es igual a 1
+            return [xF, curvaDeEquilibrio(xF, alfa)];
+        if (q == 0)
+            return [curvaDeEquilibrioInv(xF, alfa), xF];
         let a = (q * (alfa - 1)) / (1 - q);
         let b = alfa + (q - xF * (alfa - 1)) / (1 - q);
         let c = -(xF) / (1 - q);
@@ -95,6 +103,8 @@
             throw new Error("La característica de la alimentación debe ser un número");
         if (typeof xF !== "number")
             throw new Error("La fracción molar de la alimentación debe ser un número");
+        if (q == 1) //Caso especial, si q es 1, la línea es una línea vertical
+            return [xF, ((RD * xF) / (RD + 1)) + (xD / (RD + 1))];
         let a = RD / (RD + 1);
         let b = xD / (RD + 1);
         let c = -q / (1 - q);
@@ -107,7 +117,8 @@
         let puntosDeLosEscalones = [], cantidadDePlatos = 0;
         while (x0 > xB) {
             y1 = y0;
-            x1 = -y1 / (y1 * (alfa - 1) - alfa);
+            //x1 = -y1 / (y1 * (alfa - 1) - alfa);
+            x1 = curvaDeEquilibrioInv(y1, alfa);
             puntosDeLosEscalones.push([x0, y0], [x1, y1]);
             x0 = x1;
             if (x0 > x2)
@@ -264,12 +275,13 @@
         let xF = 0.36; //este valor sería un prop
         let xD = 0.915; //este valor sería un prop
         let xB = 0.05; //este valor sería un prop
-        let q = 1.5; //este valor sería un prop
-        let f = 1.5; //este valor sería un prop
+        let q = -1; //este valor sería un prop
+        let f = 1.3; //este valor sería un prop
         let [xPrima, yPrima] = xPrimayPrima(q, xF, alfa);
         let RDmin = RDm(xD, xPrima, yPrima);
         let RD = f * RDmin;
         let [x2, y2] = x2y2(RD, xD, q, xF);
+        console.log([x2, y2]);
         let calculoDeLosEscalones = calcularEscalones(alfa, xB, xF, xD, x2, y2, q, f, RD);
         let puntosDeLosEscalones = calculoDeLosEscalones.puntosDeLosEscalones;
         let cantidadDePlatos = calculoDeLosEscalones.cantidadDePlatos;

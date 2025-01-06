@@ -5,95 +5,95 @@
         <span class="font-weight-black">Método McCabe-Thiele</span>
       </template>
       <v-card-text class="bg-surface-light pt-4">
-        <v-row>
-          <v-col cols="12" md="6">
+        <v-form ref="form" v-model="valid">
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model.number="xD"
+                :rules="xDRules"
+                placeholder="Ej. 0.85"
+                required
+                type="number"
+                @input="saveToLocalStorage('xD', xD)"
+              >
+                <template v-slot:label>
+                  Fracción molar del destilado (x<sub>D</sub>)
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="xD"
-              :rules="xDRules"
-              placeholder="Ej. 0.85"
-              required
-              type="number"
-              @input="saveToLocalStorage('xD', xD)"
-            >
-              <template v-slot:label>
-                Fracción molar del destilado (x<sub>D</sub>)
-              </template>
-            </v-text-field>
+              <v-text-field
+                v-model.number="xF"
+                :rules="xFRules"
+                placeholder="Ej. 0.5"
+                required
+                type="number"
+                @input="saveToLocalStorage('xF', xF)"
+              >
+                <template v-slot:label>
+                  Fracción molar de la alimentación (x<sub>F</sub>)
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="xF"
-              :rules="xFRules"
-              placeholder="Ej. 0.5"
-              required
-              type="number"
-              @input="saveToLocalStorage('xF', xF)"
-            >
-              <template v-slot:label>
-                Fracción molar de la alimentación (x<sub>F</sub>)
-              </template>
-            </v-text-field>
+              <v-text-field
+                v-model.number="xB"
+                :rules="xBRules"
+                placeholder="Ej. 0.1"
+                required
+                type="number"
+                @input="saveToLocalStorage('xB', xB)"
+              >
+                <template v-slot:label>
+                  Fracción molar del producto de fondo (x<sub>B</sub>)
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="xB"
-              :rules="xBRules"
-              placeholder="Ej. 0.1"
-              required
-              type="number"
-              @input="saveToLocalStorage('xB', xB)"
-            >
-              <template v-slot:label>
-                Fracción molar del producto de fondo (x<sub>B</sub>)
-              </template>
-            </v-text-field>
+              <v-text-field
+                v-model.number="alfa"
+                :rules="alfaRules"
+                placeholder="Ej. 1.5"
+                required
+                type="number"
+                @input="saveToLocalStorage('alfa', alfa)"
+              >
+                <template v-slot:label>
+                  Volatilidad relativa (α)
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="alfa"
-              :rules="alfaRules"
-              placeholder="Ej. 1.5"
-              required
-              type="number"
-              @input="saveToLocalStorage('alfa', alfa)"
-            >
-              <template v-slot:label>
-                Volatilidad relativa (α)
-              </template>
-            </v-text-field>
+              <v-text-field
+                v-model.number="q"
+                :rules="qRules"
+                placeholder="Ej. 1.2"
+                required
+                type="number"
+                @input="saveToLocalStorage('q', q)"
+              >
+                <template v-slot:label>
+                  Estado de la alimentación (q)
+                  <span v-if="qDescription" :style="{ color: 'blue' }"> - {{ qDescription }}</span>
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="q"
-              :rules="qRules"
-              placeholder="Ej. 1.2"
-              required
-              type="number"
-              @input="saveToLocalStorage('q', q)"
-            >
-              <template v-slot:label>
-                Estado de la alimentación (q)
-                <span v-if="qDescription" :style="{ color: 'blue' }"> - {{ qDescription }}</span>
-              </template>
-            </v-text-field>
+              <v-text-field
+                v-model.number="f"
+                :rules="fRules"
+                placeholder="Ej. 1.3"
+                required
+                type="number"
+                @input="saveToLocalStorage('f', f)"
+              >
+                <template v-slot:label>
+                  Razón de reflujo (f)
+                </template>
+              </v-text-field>
 
-            <v-text-field
-              v-model="f"
-              :rules="fRules"
-              placeholder="Ej. 1.3"
-              required
-              type="number"
-              @input="saveToLocalStorage('f', f)"
-            >
-              <template v-slot:label>
-                Razón de reflujo (f)
-              </template>
-            </v-text-field>
-
-          </v-col>
-          <v-col cols="12" md="6">
-            columna 2
-            {{f}}
-            <McCabeThiele :alfa="3" :xF="0.36" :xD="0.915" :xB="0.05" :q="1.5" :f="1.5" />
-          </v-col>
-        </v-row>
+            </v-col>
+            <v-col cols="12" md="6">
+              <McCabeThiele v-if="valid && areValuesValid" :key="componentKey" :alfa="alfa" :xF="xF" :xD="xD" :xB="xB"
+                            :q="q" :f="f"/>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-card-text>
     </v-card>
   </v-container>
@@ -111,6 +111,9 @@ export default {
     f: parseFloat(localStorage.getItem('f')) || 1.3,
   }),
   computed: {
+    componentKey() {
+      return `${this.alfa}-${this.xF}-${this.xD}-${this.xB}-${this.q}-${this.f}`;
+    },
     xDRules() {
       return [
         value => {
@@ -163,10 +166,7 @@ export default {
     },
     qRules() {
       return [
-        value => {
-          if (value) return true;
-          return 'Este valor es obligatorio.';
-        },
+        value => value !== null && value !== undefined && value !== '' || 'Este valor es obligatorio.',
         value => !isNaN(value) || 'Debe ser un número.',
         value => value >= -1 || 'El valor debe ser mayor o igual a -1.',
         value => value <= 2 || 'El valor debe ser menor o igual a 2.'
@@ -189,15 +189,43 @@ export default {
           return 'Este valor es obligatorio.';
         },
         value => !isNaN(value) || 'Debe ser un número.',
-        value => parseFloat(value) >= 1 || 'El factor de reflujo debe ser mayor o igual a 1.',
+        value => parseFloat(value) > 1 || 'El factor de reflujo debe ser mayor a 1.',
         value => parseFloat(value) <= 3 || 'El factor de reflujo debe ser menor o igual a 3 para mantener la eficiencia.',
       ];
+    },
+    areValuesValid() {
+      return (
+        !isNaN(this.alfa) &&
+        !isNaN(this.xF) &&
+        !isNaN(this.xD) &&
+        !isNaN(this.xB) &&
+        !isNaN(this.q) &&
+        !isNaN(this.f) &&
+        this.xDRules.every(rule => rule(this.xD) === true) &&
+        this.xFRules.every(rule => rule(this.xF) === true) &&
+        this.xBRules.every(rule => rule(this.xB) === true) &&
+        this.alfaRules.every(rule => rule(this.alfa) === true) &&
+        this.qRules.every(rule => rule(this.q) === true) &&
+        this.fRules.every(rule => rule(this.f) === true)
+      );
     },
   },
   methods: {
     saveToLocalStorage(key, value) {
-      localStorage.setItem(key, value);
-    },
+      if (value !== null && value !== undefined && !isNaN(value)) {
+        localStorage.setItem(key, value);
+      } else {
+        const defaultValues = {
+          xD: 0.85,
+          xF: 0.5,
+          xB: 0.1,
+          alfa: 1.5,
+          q: 1.2,
+          f: 1.3,
+        };
+        localStorage.setItem(key, defaultValues[key]);
+      }
+    }
   },
 };
 </script>
