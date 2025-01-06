@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="plot"></div>
+    <div id="plot" ref="plotContainer"></div>
   </div>
 </template>
 
@@ -116,7 +116,15 @@ export default {
       };
     },
     graficaMcCabeThiele() {
-      document.getElementById("plot").innerHTML = "";
+      // Limpia el contenedor del gráfico
+      const plotContainer = this.$refs.plotContainer;
+      plotContainer.innerHTML = "";
+
+      // Calcula las dimensiones dinámicamente
+      const { width } = plotContainer.getBoundingClientRect();
+      const height = width; // Mantén proporción 1:1 (ajústalo según necesidad)
+
+
       let {alfa, xB, xF, xD, q, f} = this;
       let [xPrima, yPrima] = this.xPrimayPrima(q, xF, alfa);
       let RDmin = this.RDm(xD, xPrima, yPrima);
@@ -141,8 +149,8 @@ export default {
       //Toma las funciones lineales y los puntos para construir el gráfico
       functionPlot({
         target: '#plot',
-        width: 500,
-        height: 500,
+        width,
+        height,
         xAxis: {domain: [0, 1]},
         yAxis: {domain: [0, 1]},
         disableZoom: true,
@@ -257,7 +265,9 @@ export default {
           ...anotaciones
         ],
       });
-
+    },
+    handleResize() {
+      this.graficaMcCabeThiele(); // Vuelve a generar el gráfico en el cambio de tamaño
     },
   },
   watch: {
@@ -270,11 +280,20 @@ export default {
   },
   mounted() {
     this.graficaMcCabeThiele();
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
   },
 };
 </script>
 
 <style>
+#plot {
+  width: 100%;
+  height: auto;
+}
+
 .function-plot .axis path,
 .function-plot .axis line,
 .function-plot .tick text {
@@ -283,5 +302,17 @@ export default {
 
 .function-plot {
   font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .function-plot .axis path,
+  .function-plot .axis line,
+  .function-plot .tick text {
+    font-size: 12px; /* Fuente más pequeña en pantallas pequeñas */
+  }
+
+  .function-plot {
+    font-size: 12px; /* Fuente más pequeña en la gráfica */
+  }
 }
 </style>
