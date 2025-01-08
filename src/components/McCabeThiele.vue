@@ -163,11 +163,11 @@ export default {
         data: [
           {
             fn: `${alfa} * x / (1 + x * (${alfa} - 1))`,
-            color: 'blue'
+            color: '#0d6efd'
           },
           {
             fn: 'x',
-            color: 'blue',
+            color: '#0d6efd',
           },
           {
             points: [

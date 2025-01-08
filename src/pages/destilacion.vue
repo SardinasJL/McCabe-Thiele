@@ -70,7 +70,7 @@
               >
                 <template v-slot:label>
                   Estado de la alimentación (q)
-                  <span v-if="qDescription" :style="{ color: 'blue' }"> - {{ qDescription }}</span>
+                  <span v-if="qDescription" :style="{ color: 'cyan' }"> - {{ qDescription }}</span>
                 </template>
               </v-text-field>
 
