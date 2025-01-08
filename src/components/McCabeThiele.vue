@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div class="text-center">
     <div id="plot" ref="plotContainer"></div>
+    <v-btn @click="descargarGrafico">Descargar Gráfico</v-btn>
   </div>
 </template>
 
@@ -121,7 +122,7 @@ export default {
       plotContainer.innerHTML = "";
 
       // Calcula las dimensiones dinámicamente
-      const { width } = plotContainer.getBoundingClientRect();
+      const {width} = plotContainer.getBoundingClientRect();
       const height = width; // Mantén proporción 1:1 (ajústalo según necesidad)
 
 
@@ -268,6 +269,48 @@ export default {
     },
     handleResize() {
       this.graficaMcCabeThiele(); // Vuelve a generar el gráfico en el cambio de tamaño
+    },
+    descargarGrafico() {
+      const svgElement = this.$refs.plotContainer.querySelector("svg");
+      if (!svgElement) {
+        alert("No se encontró el gráfico para descargar.");
+        return;
+      }
+
+      // Clonar el SVG para aplicar estilos específicos de exportación
+      const clonedSvg = svgElement.cloneNode(true);
+
+      // Cambiar el tamaño de la fuente en el SVG clonado
+      clonedSvg.querySelectorAll("text").forEach((textElement) => {
+        textElement.setAttribute("font-size", "12px"); // Tamaño fijo para la exportación
+      });
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Establecer tamaño deseado (800x800 píxeles)
+      const desiredWidth = 800;
+      const desiredHeight = 800;
+      canvas.width = desiredWidth;
+      canvas.height = desiredHeight;
+
+      // Convertir el SVG a una imagen
+      const img = new Image();
+      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      img.onload = () => {
+        // Escalar y dibujar el SVG en el lienzo
+        ctx.drawImage(img, 0, 0, desiredWidth, desiredHeight);
+        URL.revokeObjectURL(url); // Liberar memoria
+
+        // Descargar la imagen como PNG
+        const link = document.createElement("a");
+        link.download = "grafico.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      };
+      img.src = url;
     },
   },
   watch: {

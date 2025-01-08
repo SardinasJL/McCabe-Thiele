@@ -78,12 +78,14 @@
                 v-model.number="f"
                 :rules="fRules"
                 placeholder="Ej. 1.3"
+                suffix="* RDmin"
+                prefix="RD = "
                 required
                 type="number"
                 @input="saveToLocalStorage('f', f)"
               >
                 <template v-slot:label>
-                  Razón de reflujo (f)
+                  Factor de reflujo (f)
                 </template>
               </v-text-field>
 
